@@ -85,18 +85,18 @@ echo "teto:teto" | chpasswd
 if [[ $loader == systemd-boot ]]; then
   bootctl --esp-path=/boot/efi install
   cat > /boot/loader/loader.conf <<LOADER
-  default arch
-  timeout 3
-  editor 0
-  LOADER
+default arch
+timeout 3
+editor 0
+LOADER
 
   PARTUUID=\$(blkid -s PARTUUID -o value ${disk}3)
   cat > /boot/loader/entries/arch.conf <<ENTRY
-  title   Arch Linux
-  linux   /vmlinuz-linux
-  initrd  /initramfs-linux.img
-  options root=PARTUUID=\$PARTUUID rw
-  ENTRY
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /initramfs-linux.img
+options root=PARTUUID=\$PARTUUID rw
+ENTRY
 else
   pacman -S --noconfirm grub
   grub-install --target=i386-pc $disk
