@@ -46,16 +46,19 @@ sgdisk -n3:0:0     -t3:8300 -c3:"root" "$disk"
 
 mkswap   "${disk}2" && swapon "${disk}2"
 mkfs.ext4 -L root "${disk}3"
-if [[ $loader == systemd-boot ]]; then
+
+if [[ -d /sys/firmware/efi ]]; then
   mkfs.fat -F32 "${disk}1"
+  if [[ $loader == systemd-boot ]]; then
+    mount "${disk}1" /mnt/boot
+  else
+    mkdir -p /mnt/boot/efi
+    mount "${disk}1" /mnt/boot/efi
+  fi
 fi
 
 # ── ⑤ マウント ────────────────────────────────
 mount "${disk}3" /mnt
-if [[ -d /sys/firmware/efi ]]; then
-  mkdir -p /mnt/boot/efi
-  mount "${disk}1" /mnt/boot/efi
-fi
 
 # ── ⑥ ベースシステム ───────────────────────────
 pacstrap /mnt base linux linux-firmware
@@ -99,11 +102,11 @@ if [[ $loader == grub ]]; then
 
 else  # ── systemd‑boot ──────────────────────
 
-    # ESP を /boot/efi にマウントしている前提
-    bootctl --esp-path=/boot/efi install
+    # ESP を /boot にマウントしている前提
+    bootctl install
 
     # loader.conf
-    cat > /boot/efi/loader/loader.conf <<'LOADER'
+    cat > /boot/loader/loader.conf <<'LOADER'
 default arch
 timeout 3
 editor 0
@@ -113,7 +116,7 @@ LOADER
     PARTUUID=$(blkid -s PARTUUID -o value "${disk}3")
 
     # エントリー・ファイル
-    cat > /boot/efi/loader/entries/arch.conf <<ENTRY
+    cat > /boot/loader/entries/arch.conf <<ENTRY
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
