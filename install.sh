@@ -65,16 +65,17 @@ mount "${disk}3" /mnt
 pacstrap /mnt base linux linux-firmware
 genfstab -U /mnt >> /mnt/etc/fstab
 
+export disk net loader
 # ── ⑦ chroot 設定 ─────────────────────────────
 arch-chroot /mnt /bin/bash <<EOF
-set -e
+set -euo pipefail
 
 ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=jp106"     > /etc/vconsole.conf
 locale-gen
 
-pacman -S --noconfirm sudo git nano fastfetch $net
+pacman -S --noconfirm sudo git nano fastfetch "$net"
 
 if [[ $net == dhcpcd ]]; then
   systemctl enable dhcpcd
@@ -107,7 +108,7 @@ else  # ── systemd‑boot ────────────────�
     bootctl install
 
     # loader.conf
-    cat > /boot/loader/loader.conf <<'LOADER'
+    cat > /boot/loader/loader.conf <<LOADER
 default arch
 timeout 3
 editor 0
@@ -115,7 +116,7 @@ LOADER
 
     # ルートパーティションの PARTUUID を取得
     PARTUUID=$(blkid -s PARTUUID -o value "${disk}3")
-
+    
     # エントリー・ファイル
     cat > /boot/loader/entries/arch.conf <<ENTRY
 title   Arch Linux
