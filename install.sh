@@ -50,6 +50,7 @@ mkfs.ext4 -L root "${disk}3"
 if [[ -d /sys/firmware/efi ]]; then
   mkfs.fat -F32 "${disk}1"
   if [[ $loader == systemd-boot ]]; then
+    mkdir -p /mnt/boot
     mount "${disk}1" /mnt/boot
   else
     mkdir -p /mnt/boot/efi
