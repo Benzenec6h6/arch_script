@@ -52,7 +52,7 @@ fi
 
 # ── ⑤ マウント ────────────────────────────────
 mount "${disk}3" /mnt
-if [[ $loader == systemd-boot ]]; then
+if [[ -d /sys/firmware/efi ]]; then
   mkdir -p /mnt/boot/efi
   mount "${disk}1" /mnt/boot/efi
 fi
@@ -82,25 +82,43 @@ useradd -m -G wheel -s /bin/bash teto
 echo "root:toor" | chpasswd
 echo "teto:teto" | chpasswd
 
-if [[ $loader == systemd-boot ]]; then
-  bootctl --esp-path=/boot/efi install
-  cat > /boot/efi/loader/loader.conf <<LOADER
+# ── ブートローダーの分岐 ─────────────────────────────
+if [[ $loader == grub ]]; then
+    # ── GRUB ────────────────────────────────
+    pacman -S --noconfirm grub efibootmgr
+
+    if [[ -d /sys/firmware/efi ]]; then          # ← UEFI で起動している
+        grub-install --target=x86_64-efi \
+                     --efi-directory=/boot/efi \
+                     --bootloader-id=GRUB
+    else                                         # ← BIOS 互換モード
+        grub-install --target=i386-pc "$disk"
+    fi
+
+    grub-mkconfig -o /boot/grub/grub.cfg
+
+else  # ── systemd‑boot ──────────────────────
+
+    # ESP を /boot/efi にマウントしている前提
+    bootctl --esp-path=/boot/efi install
+
+    # loader.conf
+    cat > /boot/efi/loader/loader.conf <<'LOADER'
 default arch
 timeout 3
 editor 0
 LOADER
 
-  PARTUUID=\$(blkid -s PARTUUID -o value ${disk}3)
-  cat > /boot/efi/loader/entries/arch.conf <<ENTRY
+    # ルートパーティションの PARTUUID を取得
+    PARTUUID=$(blkid -s PARTUUID -o value "${disk}3")
+
+    # エントリー・ファイル
+    cat > /boot/efi/loader/entries/arch.conf <<ENTRY
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options root=PARTUUID=\$PARTUUID rw
+options root=PARTUUID=$PARTUUID rw
 ENTRY
-else
-  pacman -S --noconfirm grub
-  grub-install --target=i386-pc $disk
-  grub-mkconfig -o /boot/grub/grub.cfg
 fi
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
