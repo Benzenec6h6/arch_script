@@ -65,7 +65,10 @@ mount "${disk}3" /mnt
 pacstrap /mnt base linux linux-firmware
 genfstab -U /mnt >> /mnt/etc/fstab
 
-export disk net loader
+# ルートパーティションの PARTUUID を取得
+PARTUUID=$(blkid -s PARTUUID -o value "${disk}3")
+
+export disk net loader PARTUUID
 # ── ⑦ chroot 設定 ─────────────────────────────
 arch-chroot /mnt /bin/bash <<EOF
 set -euo pipefail
@@ -114,11 +117,8 @@ timeout 3
 editor 0
 LOADER
 
-    # ルートパーティションの PARTUUID を取得
-    PARTUUID=$(blkid -s PARTUUID -o value "${disk}3")
-    
     # エントリー・ファイル
-    cat > /boot/loader/entries/arch.conf <<'ENTRY'
+    cat > /boot/loader/entries/arch.conf <<ENTRY
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
