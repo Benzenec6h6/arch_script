@@ -44,8 +44,11 @@ fi
 sgdisk -n2:0:+4G   -t2:8200 -c2:"swap" "$disk"
 sgdisk -n3:0:0     -t3:8300 -c3:"root" "$disk"
 
-mkswap   "${disk}2" && swapon "${disk}2"
+# ── ⑤ マウント ────────────────────────────────
 mkfs.ext4 -L root "${disk}3"
+mount "${disk}3" /mnt
+
+mkswap   "${disk}2" && swapon "${disk}2"
 
 if [[ -d /sys/firmware/efi ]]; then
   mkfs.fat -F32 "${disk}1"
@@ -57,9 +60,6 @@ if [[ -d /sys/firmware/efi ]]; then
     mount "${disk}1" /mnt/boot/efi
   fi
 fi
-
-# ── ⑤ マウント ────────────────────────────────
-mount "${disk}3" /mnt
 
 # ── ⑥ ベースシステム ───────────────────────────
 pacstrap /mnt base linux linux-firmware
@@ -122,7 +122,7 @@ LOADER
 title   Arch Linux
 linux   /vmlinuz-linux
 initrd  /initramfs-linux.img
-options root=PARTUUID=$PARTUUID rw
+options root=PARTUUID="${PARTUUID}" rw
 ENTRY
 fi
 
