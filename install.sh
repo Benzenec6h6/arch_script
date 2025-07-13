@@ -32,6 +32,11 @@ echo "== Boot loader =="
 select loader in "${loaders[@]}"; do [[ -n $loader ]] && break; done
 echo "→ $loader"
 
+#add username
+read -rp "== User name (new account): " username
+[[ -n $username ]] || { echo "Username must not be empty"; exit 1; }
+echo "→ user = $username"
+
 # ── ④ パーティション作成 ────────────────────────
 echo "[+] Wipe & GPT"
 sgdisk --zap-all "$disk"
@@ -68,7 +73,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 # ルートパーティションの PARTUUID を取得
 PARTUUID=$(blkid -s PARTUUID -o value "${disk}3")
 
-export disk net loader PARTUUID
+export disk net loader username PARTUUID
 # ── ⑦ chroot 設定 ─────────────────────────────
 arch-chroot /mnt /bin/bash <<EOF
 set -euo pipefail
@@ -86,9 +91,9 @@ else
   systemctl enable NetworkManager
 fi
 
-useradd -m -G wheel -s /bin/bash teto
+useradd -m -G wheel -s /bin/bash "\$username"
 echo "root:toor" | chpasswd
-echo "teto:teto" | chpasswd
+echo "\$username:\$username" | chpasswd
 
 # ── ブートローダーの分岐 ─────────────────────────────
 if [[ $loader == grub ]]; then
