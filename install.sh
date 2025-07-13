@@ -83,7 +83,7 @@ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=jp106"     > /etc/vconsole.conf
 locale-gen
 
-pacman -S --noconfirm sudo git nano fastfetch "$net"
+pacman -S --noconfirm sudo git nano base-devel fastfetch "$net"
 
 if [[ $net == dhcpcd ]]; then
   systemctl enable dhcpcd
