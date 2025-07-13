@@ -8,27 +8,25 @@ echo "[+] target user = $USER_NAME"
 
 ### 1. AUR ヘルパー選択 & インストール ----------------------------------
 choose_aur() {
-  local aurs=(yay paru)
+  local aurs=(yay-bin paru)
   echo "== Choose AUR helper =="
   select aur in "${aurs[@]}"; do [[ -n $aur ]] && break; done
   echo "→ AUR helper: $aur"
 
-  pacman -S --needed --noconfirm base-devel git
-
-  tmpdir=$(mktemp -d)
+  #tmpdir=$(mktemp -d)
   case $aur in
     yay)
-      git clone https://aur.archlinux.org/yay-bin.git "$tmpdir/yay-bin"
-      (cd "$tmpdir/yay-bin" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
+      git clone https://aur.archlinux.org/yay-bin.git
+      (cd "yay-bin" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
       ;;
     paru)
       pacman -S --needed --noconfirm rustup
       sudo -u "$USER_NAME" rustup default stable
-      git clone https://aur.archlinux.org/paru.git "$tmpdir/paru"
-      (cd "$tmpdir/paru" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
+      git clone https://aur.archlinux.org/paru.git
+      (cd "paru" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
       ;;
   esac
-  rm -rf "$tmpdir"
+  rm -rf "$aur"
 }
 choose_aur
 
