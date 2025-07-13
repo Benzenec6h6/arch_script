@@ -17,13 +17,15 @@ choose_aur() {
   case $aur in
     yay)
       git clone https://aur.archlinux.org/yay-bin.git
-      (cd "yay-bin" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
+      cd "yay-bin"
+      sudo -u "$USER_NAME" makepkg -si --noconfirm
       ;;
     paru)
       pacman -S --needed --noconfirm rustup
       sudo -u "$USER_NAME" rustup default stable
       git clone https://aur.archlinux.org/paru.git
-      (cd "paru" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
+      cd "paru"
+      sudo -u "$USER_NAME" makepkg -si --noconfirm
       ;;
   esac
   rm -rf "$aur"
