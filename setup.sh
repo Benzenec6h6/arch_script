@@ -8,12 +8,13 @@ echo "[+] target user = $USER_NAME"
 
 ### 1. AUR ヘルパー選択 & インストール ----------------------------------
 choose_aur() {
-  local aurs=(yay paru)
+  aurs=(yay paru)
   echo "== Choose AUR helper =="
   select aur in "${aurs[@]}"; do [[ -n $aur ]] && break; done
   echo "→ AUR helper: $aur"
 
   tmpdir=$(mktemp -d)
+  chmod 777 "$tmpdir"
   case $aur in
     yay)
       sudo -u "$USER_NAME" git clone https://aur.archlinux.org/yay-bin.git "$tmpdir/yay-bin"
@@ -75,9 +76,9 @@ pkgs=(
   tmux starship alacritty foot wezterm zsh dash
   # Fonts
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
-  noto-fonts-cjk noto-fonts-emoji otf-mplus1p adobe-source-han-sans-otc-fonts
+  noto-fonts-cjk noto-fonts-emoji adobe-source-han-sans-otc-fonts
   # IM
-  fcitx5-im fcitx5-mozc-ut fcitx5-gtk fcitx5-qt
+  fcitx5-im
   # Windows
   wine winetricks wine-mono
   # Virtualization
@@ -89,10 +90,10 @@ pkgs=(
   firefox chromium code discord qbittorrent unzip unrar p7zip
 )
 
-pacman -S --needed --noconfirm "${pkgs[@]}"
+"$aur" -S --needed --noconfirm "${pkgs[@]}"
 
 ### 4. AUR パッケージ ---------------------------------------------------
-sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm udev-gothic
+sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm udev-gothic fcitx5-mozc-ut
 
 ### 5. サービス有効化 ---------------------------------------------------
 # systemd-user (対象ユーザー) -----------------
