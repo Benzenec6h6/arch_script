@@ -13,22 +13,21 @@ choose_aur() {
   select aur in "${aurs[@]}"; do [[ -n $aur ]] && break; done
   echo "→ AUR helper: $aur"
 
-  #tmpdir=$(mktemp -d)
-  case $aur in
-    yay)
+  case ${aur} in
+    yay-bin)
       git clone https://aur.archlinux.org/yay-bin.git
-      cd "yay-bin"
+      cd yay-bin
       sudo -u "$USER_NAME" makepkg -si --noconfirm
       ;;
     paru)
       pacman -S --needed --noconfirm rustup
       sudo -u "$USER_NAME" rustup default stable
       git clone https://aur.archlinux.org/paru.git
-      cd "paru"
+      cd paru
       sudo -u "$USER_NAME" makepkg -si --noconfirm
       ;;
   esac
-  rm -rf "$aur"
+  rm -rf "${aur}"
 }
 choose_aur
 
@@ -68,7 +67,7 @@ pkgs=(
   # Power
   tlp tlp-rdw
   # Dev tools
-  git-lfs base-devel
+  git-lfs
   # Utils
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
   # Display manager alt
