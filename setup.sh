@@ -3,6 +3,8 @@ set -euo pipefail
 
 ### 0. root で実行確認
 [[ $EUID -eq 0 ]] || { echo "Run as root"; exit 1; }
+USER_NAME=${SUDO_USER:-$(logname)}
+echo "[+] target user = $USER_NAME"
 
 ### 1. AUR ヘルパー選択 & インストール ----------------------------------
 choose_aur() {
@@ -11,23 +13,23 @@ choose_aur() {
   select aur in "${aurs[@]}"; do [[ -n $aur ]] && break; done
   echo "→ AUR helper: $aur"
 
+  pacman -S --needed --noconfirm base-devel git
+
+  tmpdir=$(mktemp -d)
   case $aur in
     yay)
-      pacman -S --noconfirm base-devel git
-      git clone https://aur.archlinux.org/yay-bin.git /tmp/yay-bin
-      (cd /tmp/yay-bin && makepkg -si --noconfirm)
-      rm -rf /tmp/yay-bin
+      git clone https://aur.archlinux.org/yay-bin.git "$tmpdir/yay-bin"
+      (cd "$tmpdir/yay-bin" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
       ;;
     paru)
-      pacman -S --noconfirm base-devel git rustup
-      rustup default stable
-      git clone https://aur.archlinux.org/paru.git /tmp/paru
-      (cd /tmp/paru && makepkg -si --noconfirm)
-      rm -rf /tmp/paru
+      pacman -S --needed --noconfirm rustup
+      sudo -u "$USER_NAME" rustup default stable
+      git clone https://aur.archlinux.org/paru.git "$tmpdir/paru"
+      (cd "$tmpdir/paru" && sudo -u "$USER_NAME" makepkg -si --noconfirm)
       ;;
   esac
+  rm -rf "$tmpdir"
 }
-
 choose_aur
 
 ### 2. multilib を有効化 -----------------------------------------------
@@ -35,110 +37,102 @@ sed -i '/^\s*#\s*\[multilib\]/{s/^#\s*//;n;s/^#\s*//;}' /etc/pacman.conf
 pacman -Syy
 
 ### 3. pacman パッケージ -----------------------------------------------
+# GPU ドライバ自動判定
+gpu_pkgs=(mesa mesa-utils)
+if lspci | grep -qi nvidia; then
+  gpu_pkgs+=(nvidia nvidia-utils)
+elif lspci | grep -qi " Intel "; then
+  gpu_pkgs+=(intel-media-driver)
+fi
+
+# microcode 自動
+if grep -qi AMD /proc/cpuinfo; then
+  microcode_pkg=amd-ucode
+else
+  microcode_pkg=intel-ucode
+fi
+
 pkgs=(
-  # Xorg / Wayland 基本
+  # Xorg / Wayland
   xorg-server xorg-xinit xorg-apps
   wayland wayland-protocols xorg-xwayland libxkbcommon
-
-  #Wayland 必須ライブラリ
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
-  # GPU/Mesa
-  mesa mesa-utils nvidia intel-media-driver
+  "${gpu_pkgs[@]}"
+  "$microcode_pkg"
 
-  # サウンド/PipeWire
+  # Audio
   pipewire pipewire-alsa pipewire-pulse wireplumber
-
   # Bluetooth
   bluez bluez-utils
-
-  # Power Management
+  # Power
   tlp tlp-rdw
-
-  # 開発ツール
+  # Dev tools
   git-lfs base-devel
-
-  # XDG/共通ユーティリティ
-  xdg-utils xdg-user-dirs
-
-  #Microcode
-  intel-ucode
-
-  # Display manager 代替
+  # Utils
+  xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
+  # Display manager alt
   greetd gtkgreet seatd
-
   # Terminal / Shell
-  tmux starship alacritty foot st wezterm
-  zsh dash
-
-  #アクセサリ
-  htop nvtop btop fzf ripgrep
-
-  # フォント
+  tmux starship alacritty foot wezterm zsh dash
+  # Fonts
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
   noto-fonts-cjk noto-fonts-emoji otf-mplus1p adobe-source-han-sans-otc-fonts
-
-  # 日本語入力
+  # IM
   fcitx5-im fcitx5-mozc-ut fcitx5-gtk fcitx5-qt
-
-  # Windows 互換
+  # Windows
   wine winetricks wine-mono
-
-  # 仮想化
+  # Virtualization
   qemu-full qemu-img libvirt virt-install virt-manager virt-viewer \
   edk2-ovmf dnsmasq swtpm libosinfo tuned ntfs-3g
-
-  # コンテナ
+  # Containers
   docker
-
-  # アプリ
+  # Apps
   firefox chromium code discord qbittorrent unzip unrar p7zip
 )
 
-pacman -S --noconfirm "${pkgs[@]}"
+pacman -S --needed --noconfirm "${pkgs[@]}"
 
 ### 4. AUR パッケージ ---------------------------------------------------
-# 例: udev-gothic
-$aur -S --noconfirm udev-gothic
+sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm udev-gothic
 
 ### 5. サービス有効化 ---------------------------------------------------
-systemctl enable seatd.service
+# systemd-user (対象ユーザー) -----------------
+sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber
+sudo -u "$USER_NAME" systemctl --user enable --now seatd
+
+# systemd-system ----------------------------
+systemctl enable --now bluetooth cups tlp tlp-sleep
 
 # libvirt
-systemctl enable --now libvirtd.service
+systemctl enable --now libvirtd
 sed -Ei 's|^#(unix_sock_group = )"libvirt"|\1"libvirt"|' /etc/libvirt/libvirtd.conf
-sed -Ei 's|^#(unix_sock_rw_perms = )"0770"|\1"0770"|'       /etc/libvirt/libvirtd.conf
-usermod -aG libvirt "$SUDO_USER"
-
-#PipeWire
-systemctl --user enable --now pipewire pipewire-pulse wireplumber 
-
-#Bluetooth
-systemctl enable --now bluetooth
-
-#TLP
-systemctl enable --now tlp tlp-sleep
-
-#Fonts キャッシュ更新
-fc-cache -fv
+sed -Ei 's|^#(unix_sock_rw_perms = )"0770"|\1"0770"|' /etc/libvirt/libvirtd.conf
+usermod -aG libvirt "$USER_NAME"
 
 # docker
-systemctl enable --now docker.service containerd.service
-usermod -aG docker "$SUDO_USER"
+systemctl enable --now docker containerd
+usermod -aG docker "$USER_NAME"
 
-### 6. Winetricks 日本語フォント
-winetricks -q cjkfonts || true   # 失敗しても続行
+# フォントキャッシュ
+fc-cache -fv
 
-### 7. curl インストーラ例 (jetify devbox)
-sudo -u "$SUDO_USER" bash -c 'curl -fsSL https://get.jetify.com/devbox | bash'
+### 6. winetricks （非 root）
+sudo -u "$USER_NAME" winetricks -q cjkfonts || true
+
+### 7. Nix install
+curl -L https://nixos.org/nix/install | bash -s -- --daemon
+systemctl enable --now nix-daemon.service
 
 ### 8. fcitx5 環境変数
-cat >> ~/.config/environment.d/fcitx.conf <<EOF
+sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
+cat > "/home/$USER_NAME/.config/environment.d/fcitx.conf" <<EOF
 INPUT_METHOD=fcitx
 GTK_IM_MODULE=fcitx
 QT_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx
 EOF
+chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
 
 echo -e "\n===== setup complete! ====="
-echo "ログアウトし、再ログインして groups を確認してください。"
+echo "再ログイン後、groups コマンドで docker/libvirt が反映されていることを確認してください。"
