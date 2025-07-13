@@ -41,7 +41,7 @@ echo "→ user = $username"
 echo "[+] Wipe & GPT"
 sgdisk --zap-all "$disk"
 
-if [[ $loader == systemd-boot ]]; then
+if [[ -d /sys/firmware/efi ]]; then
   sgdisk -n1:0:+512M -t1:ef00 -c1:"EFI" "$disk"
 else
   sgdisk -n1:0:+1M   -t1:ef02 -c1:"BIOS" "$disk"
