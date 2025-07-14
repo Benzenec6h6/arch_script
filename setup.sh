@@ -93,12 +93,14 @@ pkgs=(
 "$aur" -S --needed --noconfirm "${pkgs[@]}"
 
 ### 4. AUR パッケージ ---------------------------------------------------
-sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm udev-gothic fcitx5-mozc-ut
+sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --usebinaryonly ttf-udev-gothic fcitx5-mozc-ut
 
 ### 5. サービス有効化 ---------------------------------------------------
 # systemd-user (対象ユーザー) -----------------
 sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber
+sudo -u "$USER_NAME" systemctl enable --now greetd.service
 sudo -u "$USER_NAME" systemctl --user enable --now seatd
+loginctl enable-linger "$USER_NAME"
 
 # systemd-system ----------------------------
 systemctl enable --now bluetooth cups tlp tlp-sleep
