@@ -71,7 +71,7 @@ pkgs=(
   # Utils
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
   # Display manager alt
-  greetd gtkgreet seatd
+  greetd seatd
   # Terminal / Shell
   tmux starship alacritty foot wezterm zsh dash
   # Fonts
@@ -94,9 +94,9 @@ pacman -S --needed --noconfirm "${pkgs[@]}"
 
 ### 4. AUR パッケージ ---------------------------------------------------
 if "$aur"=="yay"; then
-  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --answerclean N --answerdiff N ttf-udev-gothic fcitx5-mozc-ut
+  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --answerclean N --answerdiff N ttf-udev-gothic greetd-gtkgreet fcitx5-mozc-ut
 else
-  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --skipreview --cleanafter ttf-udev-gothic fcitx5-mozc-ut
+  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --skipreview --cleanafter ttf-udev-gothic greetd-gtkgreet fcitx5-mozc-ut
 fi
 
 ### 5. サービス有効化 ---------------------------------------------------
