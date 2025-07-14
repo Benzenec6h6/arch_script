@@ -66,7 +66,7 @@ pkgs=(
   tmux starship alacritty foot wezterm zsh dash
 
   # Display manager alt
-  greetd gtkgreet seatd
+  greetd greetd-gtkgreet seatd
 
   # Fonts & IM
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
@@ -97,10 +97,11 @@ pacman -S --needed --noconfirm "${pkgs[@]}"
 loginctl enable-linger "$USER_NAME"
 
 # user units
-sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber seatd
+#sudo -u "$USER_NAME"
+systemctl --user enable --now pipewire pipewire-pulse wireplumber seatd
 
 # system units
-systemctl enable --now bluetooth cups tlp tlp-sleep
+systemctl enable --now bluetooth cups tlp tlp-sleep greetd.service
 #systemctl enable --now greetd.service
 
 # libvirt
