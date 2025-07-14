@@ -90,20 +90,24 @@ pkgs=(
   firefox chromium code discord qbittorrent unzip unrar p7zip
 )
 
-"$aur" -S --needed --noconfirm "${pkgs[@]}"
+pacman -S --needed --noconfirm "${pkgs[@]}"
 
 ### 4. AUR パッケージ ---------------------------------------------------
-sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --usebinaryonly ttf-udev-gothic fcitx5-mozc-ut
+if "$aur"=="yay"; then
+  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --answerclean N --answerdiff N ttf-udev-gothic fcitx5-mozc-ut
+else
+  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --skipreview --cleanafter ttf-udev-gothic fcitx5-mozc-ut
+fi
 
 ### 5. サービス有効化 ---------------------------------------------------
 # systemd-user (対象ユーザー) -----------------
 sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber
-sudo -u "$USER_NAME" systemctl enable --now greetd.service
 sudo -u "$USER_NAME" systemctl --user enable --now seatd
 loginctl enable-linger "$USER_NAME"
 
 # systemd-system ----------------------------
 systemctl enable --now bluetooth cups tlp tlp-sleep
+systemctl enable --now greetd.service
 
 # libvirt
 systemctl enable --now libvirtd
@@ -122,7 +126,7 @@ fc-cache -fv
 sudo -u "$USER_NAME" winetricks -q cjkfonts || true
 
 ### 7. Nix install
-curl -L https://nixos.org/nix/install | bash -s -- --daemon
+sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon
 systemctl enable --now nix-daemon.service
 
 ### 8. fcitx5 環境変数
