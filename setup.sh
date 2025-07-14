@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-### 0. root で実行確認
+##### 0. root で実行確認 ################################################
 [[ $EUID -eq 0 ]] || { echo "Run as root"; exit 1; }
 USER_NAME=${SUDO_USER:-$(logname)}
 echo "[+] target user = $USER_NAME"
 
-### 1. AUR ヘルパー選択 & インストール ----------------------------------
+##### 1. AUR ヘルパー選択 & インストール ################################
 choose_aur() {
-  aurs=(yay paru)
+  local aurs=(yay paru)
   echo "== Choose AUR helper =="
   select aur in "${aurs[@]}"; do [[ -n $aur ]] && break; done
   echo "→ AUR helper: $aur"
+
+  pacman -S --needed --noconfirm base-devel git
 
   tmpdir=$(mktemp -d)
   chmod 777 "$tmpdir"
@@ -28,28 +30,24 @@ choose_aur() {
       ;;
   esac
   rm -rf "$tmpdir"
+  echo "$aur"          # 戻り値として書き出し
 }
-choose_aur
 
-### 2. multilib を有効化 -----------------------------------------------
-sed -i '/^\s*#\s*\[multilib\]/{s/^#\s*//;n;s/^#\s*//;}' /etc/pacman.conf
-pacman -Syy
+aur=$(choose_aur)
 
-### 3. pacman パッケージ -----------------------------------------------
+##### 2. multilib を有効化 ##############################################
+if ! grep -q "^\[multilib\]" /etc/pacman.conf; then
+  sed -i '/^\s*#\s*\[multilib\]/{s/^#\s*//;n;s/^#\s*//;}' /etc/pacman.conf
+fi
+pacman -Sy
+
+##### 3. pacman パッケージ ##############################################
 # GPU ドライバ自動判定
 gpu_pkgs=(mesa mesa-utils)
-if lspci | grep -qi nvidia; then
-  gpu_pkgs+=(nvidia nvidia-utils)
-elif lspci | grep -qi " Intel "; then
-  gpu_pkgs+=(intel-media-driver)
-fi
+lspci | grep -qi nvidia  && gpu_pkgs+=(nvidia nvidia-utils)
+lspci | grep -qi " Intel " && gpu_pkgs+=(intel-media-driver)
 
-# microcode 自動
-if grep -qi AMD /proc/cpuinfo; then
-  microcode_pkg=amd-ucode
-else
-  microcode_pkg=intel-ucode
-fi
+microcode_pkg=$(grep -qi AMD /proc/cpuinfo && echo amd-ucode || echo intel-ucode)
 
 pkgs=(
   # Xorg / Wayland
@@ -57,59 +55,53 @@ pkgs=(
   wayland wayland-protocols xorg-xwayland libxkbcommon
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
-  "${gpu_pkgs[@]}"
-  "$microcode_pkg"
+  "${gpu_pkgs[@]}" "$microcode_pkg"
 
-  # Audio
+  # Audio / Bluetooth / Power
   pipewire pipewire-alsa pipewire-pulse wireplumber
-  # Bluetooth
-  bluez bluez-utils
-  # Power
-  tlp tlp-rdw
-  # Dev tools
-  git-lfs
-  # Utils
+  bluez bluez-utils tlp tlp-rdw
+
+  # Utils / Shell
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
-  # Display manager alt
-  greetd greetd-gtkgreet seatd
-  # Terminal / Shell
   tmux starship alacritty foot wezterm zsh dash
-  # Fonts
+
+  # Display manager alt
+  greetd gtkgreet seatd
+
+  # Fonts & IM
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
   noto-fonts-cjk noto-fonts-emoji adobe-source-han-sans-otc-fonts
-  # IM
   fcitx5-im
+
   # Windows
   wine winetricks wine-mono
+
   # Virtualization
   qemu-full qemu-img libvirt virt-install virt-manager virt-viewer \
   edk2-ovmf dnsmasq swtpm libosinfo tuned ntfs-3g
+
   # Containers
   docker
+
   # Apps
   firefox chromium code discord qbittorrent unzip unrar p7zip
 )
 
 pacman -S --needed --noconfirm "${pkgs[@]}"
 
-### 4. AUR パッケージ ---------------------------------------------------
-<< comment
-aurpkgs=(ttf-udev-gothic fcitx5-mozc-ut)
-if "$aur"=="yay"; then
-  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --answerclean N --answerdiff N "${aurpkgs[@]}"
-else
-  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --skipreview --cleanafter "${aurpkgs[@]}"
-fi
-comment
-### 5. サービス有効化 ---------------------------------------------------
-# systemd-user (対象ユーザー) -----------------
-loginctl enable-linger "$USER_NAME"
-sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber
-sudo -u "$USER_NAME" systemctl --user enable --now seatd
+##### 4. AUR パッケージ（テスト時はコメントアウト） ####################
+#aur_pkgs=(ttf-udev-gothic fcitx5-mozc-ut)
+#sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm "${aur_pkgs[@]}"
 
-# systemd-system ----------------------------
+##### 5. サービス有効化 ##################################################
+loginctl enable-linger "$USER_NAME"
+
+# user units
+sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber seatd
+
+# system units
 systemctl enable --now bluetooth cups tlp tlp-sleep
-systemctl enable --now greetd.service
+#systemctl enable --now greetd.service
 
 # libvirt
 systemctl enable --now libvirtd
@@ -121,17 +113,16 @@ usermod -aG libvirt "$USER_NAME"
 systemctl enable --now docker containerd
 usermod -aG docker "$USER_NAME"
 
-# フォントキャッシュ
 fc-cache -fv
 
-### 6. winetricks （非 root）
+##### 6. winetricks （非 root） #########################################
 sudo -u "$USER_NAME" winetricks -q cjkfonts || true
 
-### 7. Nix install
-sh <(curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install) --daemon
+##### 7. Nix multi-user ##################################################
+curl -L https://nixos.org/nix/install | bash -s -- --daemon
 systemctl enable --now nix-daemon.service
 
-### 8. fcitx5 環境変数
+##### 8. fcitx5 環境変数 #################################################
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
 cat > "/home/$USER_NAME/.config/environment.d/fcitx.conf" <<EOF
 INPUT_METHOD=fcitx
@@ -141,5 +132,4 @@ XMODIFIERS=@im=fcitx
 EOF
 chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
 
-echo -e "\n===== setup complete! ====="
-echo "再ログイン後、groups コマンドで docker/libvirt が反映されていることを確認してください。"
+echo "===== setup complete! Re‑login and verify 'groups' output (docker/libvirt) ====="
