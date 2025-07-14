@@ -71,7 +71,7 @@ pkgs=(
   # Utils
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
   # Display manager alt
-  greetd seatd
+  greetd greetd-gtkgreet seatd
   # Terminal / Shell
   tmux starship alacritty foot wezterm zsh dash
   # Fonts
@@ -93,17 +93,19 @@ pkgs=(
 pacman -S --needed --noconfirm "${pkgs[@]}"
 
 ### 4. AUR パッケージ ---------------------------------------------------
+<< comment
+aurpkgs=(ttf-udev-gothic fcitx5-mozc-ut)
 if "$aur"=="yay"; then
-  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --answerclean N --answerdiff N ttf-udev-gothic greetd-gtkgreet fcitx5-mozc-ut
+  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --answerclean N --answerdiff N "${aurpkgs[@]}"
 else
-  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --skipreview --cleanafter ttf-udev-gothic greetd-gtkgreet fcitx5-mozc-ut
+  sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm --skipreview --cleanafter "${aurpkgs[@]}"
 fi
-
+comment
 ### 5. サービス有効化 ---------------------------------------------------
 # systemd-user (対象ユーザー) -----------------
+loginctl enable-linger "$USER_NAME"
 sudo -u "$USER_NAME" systemctl --user enable --now pipewire pipewire-pulse wireplumber
 sudo -u "$USER_NAME" systemctl --user enable --now seatd
-loginctl enable-linger "$USER_NAME"
 
 # systemd-system ----------------------------
 systemctl enable --now bluetooth cups tlp tlp-sleep
