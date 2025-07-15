@@ -123,10 +123,10 @@ fc-cache -fv
 sudo -u "$USER_NAME" winetricks -q cjkfonts || true
 
 ##### 7. dotfiles #################################################
-DOT_DIR="/home/$USER_NAME/arch_dot"
+DOT_DIR="/home/$USER_NAME/dotfiles/arch_dot"
 
 # 1) クローン（ユーザー所有に）
-sudo -u "$USER_NAME" git clone https://github.com/Benzenec6h6/dotfiles.git "$DOT_DIR"
+sudo -u "$USER_NAME" git clone https://github.com/Benzenec6h6/dotfiles.git
 
 # 2) 必要ディレクトリ
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
