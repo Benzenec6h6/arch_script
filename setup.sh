@@ -141,7 +141,7 @@ cd "$DOT_DIR"
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
-sudo -u "$USER_NAME" stow -t "/etc"              greetd          # greetd はシステムパス
+stow -t "/etc" greetd
 
 #chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
 
