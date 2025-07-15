@@ -100,7 +100,7 @@ pacman -S --needed --noconfirm "${pkgs[@]}"
 loginctl enable-linger "$USER_NAME"
 
 # user units
-systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
+systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber seatd
 #sudo -u "$USER_NAME" systemctl --user enable --now seatd
 
 # system units
