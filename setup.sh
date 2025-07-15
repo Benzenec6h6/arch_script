@@ -97,12 +97,14 @@ pacman -S --needed --noconfirm "${pkgs[@]}"
 loginctl enable-linger "$USER_NAME"
 
 # user units
-#sudo -u "$USER_NAME"
-systemctl --user enable --now pipewire pipewire-pulse wireplumber seatd
+systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
+#sudo -u "$USER_NAME" systemctl --user enable --now seatd
 
 # system units
-systemctl enable --now bluetooth cups tlp tlp-sleep greetd.service
-#systemctl enable --now greetd.service
+systemctl enable --now bluetooth tlp
+systemctl enable cups tlp-sleep greetd
+#systemctl enable --now NetworkManager-dispatcher
+#systemctl mask systemd-rfkill.service systemd-rfkill.socket
 
 # libvirt
 systemctl enable --now libvirtd
@@ -119,11 +121,7 @@ fc-cache -fv
 ##### 6. winetricks （非 root） #########################################
 sudo -u "$USER_NAME" winetricks -q cjkfonts || true
 
-##### 7. Nix multi-user ##################################################
-curl -L https://nixos.org/nix/install | bash -s -- --daemon
-systemctl enable --now nix-daemon.service
-
-##### 8. fcitx5 環境変数 #################################################
+##### 7. fcitx5 環境変数 #################################################
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
 cat > "/home/$USER_NAME/.config/environment.d/fcitx.conf" <<EOF
 INPUT_METHOD=fcitx
@@ -132,5 +130,9 @@ QT_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx
 EOF
 chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
+
+##### 8. Nix multi-user ##################################################
+curl -L https://nixos.org/nix/install | bash -s -- --daemon
+systemctl enable --now nix-daemon.service
 
 echo "===== setup complete! Re‑login and verify 'groups' output (docker/libvirt) ====="
