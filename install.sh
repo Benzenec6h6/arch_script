@@ -79,7 +79,7 @@ arch-chroot /mnt /bin/bash <<EOF
 set -euo pipefail
 
 ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime
-echo "LANG=en_US.UTF-8" > /etc/locale.conf
+sed -i -e '/^#\(en_US\|ja_JP\)\.UTF-8/s/^#//' /etc/locale.gen
 echo "KEYMAP=jp106"     > /etc/vconsole.conf
 locale-gen
 
