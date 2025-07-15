@@ -100,11 +100,10 @@ pacman -S --needed --noconfirm "${pkgs[@]}"
 loginctl enable-linger "$USER_NAME"
 
 # user units
-systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber seatd
-#sudo -u "$USER_NAME" systemctl --user enable --now seatd
+systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
 
 # system units
-systemctl enable --now bluetooth cups tlp
+systemctl enable --now bluetooth cups tlp seatd
 systemctl enable greetd
 
 # libvirt
