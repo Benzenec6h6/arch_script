@@ -59,7 +59,7 @@ pkgs=(
 
   # Audio / Bluetooth / Power
   pipewire pipewire-alsa pipewire-pulse wireplumber
-  bluez bluez-utils tlp tlp-rdw
+  bluez bluez-utils tlp tlp-rdw cups
 
   # Utils / Shell
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
@@ -79,6 +79,9 @@ pkgs=(
   # Virtualization
   qemu-full qemu-img libvirt virt-install virt-manager virt-viewer \
   edk2-ovmf dnsmasq swtpm libosinfo tuned ntfs-3g
+
+  #dotfiles
+  stow
 
   # Containers
   docker
@@ -101,10 +104,8 @@ systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wi
 #sudo -u "$USER_NAME" systemctl --user enable --now seatd
 
 # system units
-systemctl enable --now bluetooth tlp
-systemctl enable cups tlp-sleep greetd
-#systemctl enable --now NetworkManager-dispatcher
-#systemctl mask systemd-rfkill.service systemd-rfkill.socket
+systemctl enable --now bluetooth cups tlp
+systemctl enable greetd
 
 # libvirt
 systemctl enable --now libvirtd
@@ -121,18 +122,32 @@ fc-cache -fv
 ##### 6. winetricks （非 root） #########################################
 sudo -u "$USER_NAME" winetricks -q cjkfonts || true
 
-##### 7. fcitx5 環境変数 #################################################
+##### 7. dotfiles #################################################
+DOT_DIR="/home/$USER_NAME/arch_dot"
+
+# 1) クローン（ユーザー所有に）
+sudo -u "$USER_NAME" git clone https://github.com/Benzenec6h6/dotfiles.git "$DOT_DIR"
+
+# 2) 必要ディレクトリ
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
-cat > "/home/$USER_NAME/.config/environment.d/fcitx.conf" <<EOF
-INPUT_METHOD=fcitx
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-EOF
-chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
+sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.xmonad"
+mkdir -p /etc/greetd                 # /etc 以下は root で
+
+# 3) dotfiles ルートへ移動
+cd "$DOT_DIR"
+
+# 4) stow でリンク作成
+#    -t (--target) でユーザーの $HOME を明示
+sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
+sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
+sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
+sudo -u "$USER_NAME" stow -t "/etc"              greetd          # greetd はシステムパス
+
+#chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
 
 ##### 8. Nix multi-user ##################################################
 curl -L https://nixos.org/nix/install | bash -s -- --daemon
 systemctl enable --now nix-daemon.service
 
 echo "===== setup complete! Re‑login and verify 'groups' output (docker/libvirt) ====="
+#reboot
