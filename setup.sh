@@ -55,6 +55,9 @@ pkgs=(
   wayland wayland-protocols xorg-xwayland libxkbcommon
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
+  #window manager
+  xmonad xmonad-contrib xmobar picom trayer lxappearance dmenu rofi feh sxhkd xwinwrap mpv
+
   "${gpu_pkgs[@]}" "$microcode_pkg"
 
   # Audio / Bluetooth / Power
