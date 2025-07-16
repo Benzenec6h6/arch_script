@@ -56,7 +56,8 @@ pkgs=(
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
   # window manager / app launcher / wallpaper
-  xmonad xmonad-contrib xmobar picom trayer lxappearance dmenu rofi feh sxhkd xwinwrap mpv
+  xmonad xmonad-contrib xmobar picom trayer lxappearance
+  dmenu rofi feh sxhkd mpv
 
   "${gpu_pkgs[@]}" "$microcode_pkg"
 
@@ -96,7 +97,7 @@ pkgs=(
 pacman -S --needed --noconfirm "${pkgs[@]}"
 
 ##### 4. AUR パッケージ（テスト時はコメントアウト） ####################
-#aur_pkgs=(ttf-udev-gothic fcitx5-mozc-ut)
+#aur_pkgs=(ttf-udev-gothic xwinwrap fcitx5-mozc-ut)
 #sudo -u "$USER_NAME" "$aur" -S --needed --noconfirm "${aur_pkgs[@]}"
 
 ##### 5. サービス有効化 ##################################################
