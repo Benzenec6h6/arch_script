@@ -55,7 +55,7 @@ pkgs=(
   wayland wayland-protocols xorg-xwayland libxkbcommon
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
-  #window manager
+  # window manager / app launcher / wallpaper
   xmonad xmonad-contrib xmobar picom trayer lxappearance dmenu rofi feh sxhkd xwinwrap mpv
 
   "${gpu_pkgs[@]}" "$microcode_pkg"
@@ -144,6 +144,7 @@ sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
 stow -t "/etc" greetd
+stow -t "/usr" desktop
 
 #chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
 
