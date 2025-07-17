@@ -106,6 +106,9 @@ loginctl enable-linger "$USER_NAME"
 # user units
 systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
 
+# seatd
+sudo usermod -aG video seat "$USER_NAME"
+
 # system units
 systemctl enable --now bluetooth cups tlp seatd
 systemctl enable greetd
