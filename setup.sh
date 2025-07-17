@@ -107,7 +107,7 @@ loginctl enable-linger "$USER_NAME"
 systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
 
 # seatd
-sudo usermod -aG video "$USER_NAME"
+sudo usermod -aG video,audio,input "$USER_NAME"
 sudo usermod -aG seat "$USER_NAME"
 
 # system units
@@ -152,6 +152,8 @@ sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
 cd "$DOT_DIR/greetd"
 sudo rm -f /etc/greetd/config.toml
 sudo stow -t /etc etc
+sudo chown root:root /etc/greetd/config.toml
+sudo chmod 644 /etc/greetd/config.toml
 #sudo stow -t "/usr" desktop
 sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
 
