@@ -144,10 +144,12 @@ cd "$DOT_DIR"
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
-sudo rm /etc/greetd/config.toml
-sudo stow -t "/etc" greetd
-sudo stow -t "/usr" desktop
-#sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
+
+cd "$DOT_DIR/greetd"
+sudo rm -f /etc/greetd/config.toml
+sudo stow -t /etc etc
+#sudo stow -t "/usr" desktop
+sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
 
 ##### 8. Nix multi-user ##################################################
 curl -L https://nixos.org/nix/install | bash -s -- --daemon
