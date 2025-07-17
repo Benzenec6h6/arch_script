@@ -51,12 +51,12 @@ microcode_pkg=$(grep -qi AMD /proc/cpuinfo && echo amd-ucode || echo intel-ucode
 
 pkgs=(
   # Xorg / Wayland
-  xorg-server xorg-xinit xorg-apps
+  xorg-server xorg-xinit xorg-apps xorg-xmessage
   wayland wayland-protocols xorg-xwayland libxkbcommon
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
   # window manager / app launcher / wallpaper
-  xmonad xmonad-contrib xmobar picom trayer lxappearance
+  xmonad xmonad-contrib xmobar ghc picom trayer lxappearance
   dmenu rofi feh sxhkd mpv
 
   "${gpu_pkgs[@]}" "$microcode_pkg"
@@ -144,10 +144,9 @@ cd "$DOT_DIR"
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
-stow -t "/etc" greetd
-stow -t "/usr" desktop
-
-#chown "$USER_NAME":"$USER_NAME" "/home/$USER_NAME/.config/environment.d/fcitx.conf"
+sudo stow -t "/etc" greetd
+sudo stow -t "/usr" desktop
+#sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
 
 ##### 8. Nix multi-user ##################################################
 curl -L https://nixos.org/nix/install | bash -s -- --daemon
