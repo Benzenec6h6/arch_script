@@ -72,9 +72,6 @@ pkgs=(
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
   tmux starship alacritty foot wezterm zsh dash
 
-  # Display manager alt
-  #greetd greetd-gtkgreet seatd
-
   # Fonts & IM
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
   noto-fonts-cjk noto-fonts-emoji adobe-source-han-sans-otc-fonts
@@ -111,12 +108,9 @@ systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wi
 
 # I/O?
 sudo usermod -aG input,video,audio "$USER_NAME"
-#sudo usermod -aG seat "$USER_NAME"
 
 # system units
 systemctl enable --now bluetooth cups tlp
-#systemctl enable greetd
-#systemctl enable --now seatd
 
 # libvirt
 systemctl enable --now libvirtd
@@ -142,7 +136,7 @@ sudo -u "$USER_NAME" git clone https://github.com/Benzenec6h6/dotfiles.git
 # 2) 必要ディレクトリ
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.xmonad"
-mkdir -p /etc/greetd                 # /etc 以下は root で
+
 
 # 3) dotfiles ルートへ移動
 cd "$DOT_DIR"
@@ -152,18 +146,14 @@ cd "$DOT_DIR"
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
-#sudo chown root:root /home/teto/dotfiles/arch_dot/greetd/etc/greetd/config.toml
-#sudo chmod 644 /home/teto/dotfiles/arch_dot/greetd/etc/greetd/config.toml
+sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" shell
 
-#cd "$DOT_DIR/greetd"
-#sudo rm -f /etc/greetd/config.toml
-#sudo stow -t /etc etc
-#sudo stow -t "/usr" desktop
 sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
 
 ##### 8. Nix multi-user ##################################################
 curl -L https://nixos.org/nix/install | bash -s -- --daemon
 systemctl enable --now nix-daemon.service
 
+chsh -s /bin/zsh "$USER"
 echo "===== setup complete! Re‑login and verify 'groups' output (docker/libvirt) ====="
 #reboot
