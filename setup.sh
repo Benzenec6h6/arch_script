@@ -65,12 +65,15 @@ pkgs=(
   pipewire pipewire-alsa pipewire-pulse wireplumber
   bluez bluez-utils tlp tlp-rdw cups
 
+  # Virtual driver
+  xf86-video-qxl xf86-video-fbdev xf86-video-vesa
+
   # Utils / Shell
   xdg-utils xdg-user-dirs htop nvtop btop fzf ripgrep
   tmux starship alacritty foot wezterm zsh dash
 
   # Display manager alt
-  greetd greetd-gtkgreet seatd
+  greetd greetd-gtkgreet seatd seatd-launch
 
   # Fonts & IM
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
@@ -106,13 +109,14 @@ loginctl enable-linger "$USER_NAME"
 # user units
 systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
 
-# seatd
+# I/O?
 sudo usermod -aG video,audio,input "$USER_NAME"
-sudo usermod -aG seat "$USER_NAME"
+#sudo usermod -aG seat "$USER_NAME"
 
 # system units
-systemctl enable --now bluetooth cups tlp seatd
+systemctl enable --now bluetooth cups tlp
 systemctl enable greetd
+#systemctl enable --now seatd
 
 # libvirt
 systemctl enable --now libvirtd
