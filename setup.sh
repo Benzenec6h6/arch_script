@@ -137,7 +137,6 @@ sudo -u "$USER_NAME" git clone https://github.com/Benzenec6h6/dotfiles.git
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.config/environment.d"
 sudo -u "$USER_NAME" mkdir -p "/home/$USER_NAME/.xmonad"
 
-
 # 3) dotfiles ルートへ移動
 cd "$DOT_DIR"
 
@@ -154,6 +153,6 @@ sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
 curl -L https://nixos.org/nix/install | bash -s -- --daemon
 systemctl enable --now nix-daemon.service
 
-chsh -s /bin/zsh "$USER"
+sudo -u "$USER_NAME" chsh -s /bin/zsh "$USER_NAME"
 echo "===== setup complete! Re‑login and verify 'groups' output (docker/libvirt) ====="
 #reboot
