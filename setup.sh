@@ -73,7 +73,7 @@ pkgs=(
   tmux starship alacritty foot wezterm zsh dash
 
   # Display manager alt
-  greetd greetd-gtkgreet seatd seatd-launch
+  #greetd greetd-gtkgreet seatd
 
   # Fonts & IM
   ttf-jetbrains-mono ttf-fira-code ttf-hack ttf-cascadia-code
@@ -110,12 +110,12 @@ loginctl enable-linger "$USER_NAME"
 systemctl --machine="$USER_NAME@" --user enable --now pipewire pipewire-pulse wireplumber
 
 # I/O?
-sudo usermod -aG video,audio,input "$USER_NAME"
+sudo usermod -aG input,video,audio "$USER_NAME"
 #sudo usermod -aG seat "$USER_NAME"
 
 # system units
 systemctl enable --now bluetooth cups tlp
-systemctl enable greetd
+#systemctl enable greetd
 #systemctl enable --now seatd
 
 # libvirt
@@ -152,12 +152,12 @@ cd "$DOT_DIR"
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" X11
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" fcitx5
 sudo -u "$USER_NAME" stow -t "/home/$USER_NAME" xmonad
-sudo chown root:root /home/teto/dotfiles/arch_dot/greetd/etc/greetd/config.toml
-sudo chmod 644 /home/teto/dotfiles/arch_dot/greetd/etc/greetd/config.toml
+#sudo chown root:root /home/teto/dotfiles/arch_dot/greetd/etc/greetd/config.toml
+#sudo chmod 644 /home/teto/dotfiles/arch_dot/greetd/etc/greetd/config.toml
 
-cd "$DOT_DIR/greetd"
-sudo rm -f /etc/greetd/config.toml
-sudo stow -t /etc etc
+#cd "$DOT_DIR/greetd"
+#sudo rm -f /etc/greetd/config.toml
+#sudo stow -t /etc etc
 #sudo stow -t "/usr" desktop
 sudo -u "$USER_NAME" bash -c 'xmonad --recompile'
 
