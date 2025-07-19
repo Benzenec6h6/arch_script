@@ -154,5 +154,6 @@ curl -L https://nixos.org/nix/install | bash -s -- --daemon
 systemctl enable --now nix-daemon.service
 
 sudo -u "$USER_NAME" chsh -s /bin/zsh "$USER_NAME"
+sudo passwd -l root
 echo "===== setup complete! Re‑login and verify 'groups' output (docker/libvirt) ====="
 #reboot
