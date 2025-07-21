@@ -32,12 +32,13 @@ else  # systemd‑boot
     bootctl install
 
     # loader.conf
-    cp ./bootloader/loader.conf /boot/loader/loader.conf
+    cp ./templates/bootloader/loader.conf /boot/loader/loader.conf
 
     # エントリー・ファイル
-    cp ./bootloader/arch.conf.template /boot/loader/entries/arch.conf
-    sed "s|@PARTUUID@|$PARTUUID|g" ./bootloader/arch.conf.template \
-    > /boot/loader/entries/arch.conf
+    TEMPLATE="./templates/bootloader/arch.conf.template"
+    OUTPUT="/boot/loader/entries/arch.conf"
+    cp "$TEMPLATE" "$OUTPUT"
+    sed "s|@PARTUUID@|$PARTUUID|g" "$TEMPLATE" > "$OUTPUT"
 
 fi
 
