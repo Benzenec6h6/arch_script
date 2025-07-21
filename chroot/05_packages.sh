@@ -68,8 +68,8 @@ pkgs=(
 pacman -S --needed --noconfirm "${pkgs[@]}"
 
 #aur_pkgs=(ttf-udev-gothic xwinwrap fcitx5-mozc-ut)
-#sudo -u "$USER_NAME" "$AUR_HELPER" -S --needed --noconfirm "${aur_pkgs[@]}"
+#sudo -u "$USERNAME" "$AUR_HELPER" -S --needed --noconfirm "${aur_pkgs[@]}"
 
-sudo -u "$USER_NAME" winetricks -q cjkfonts || true
+sudo -u "$USERNAME" winetricks -q cjkfonts || true
 
 curl -L https://nixos.org/nix/install | bash -s -- --daemon
