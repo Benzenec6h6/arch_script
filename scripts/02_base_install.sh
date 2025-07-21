@@ -1,16 +1,22 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source ./env.sh
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+ENV_FILE="$PROJECT_ROOT/env/env.sh"
+source "$ENV_FILE"
 
 pacstrap /mnt base linux linux-firmware git base-devel
 genfstab -U /mnt >> /mnt/etc/fstab
 
-# ルートパーティションの PARTUUID を取得
 partuuid=$(blkid -s PARTUUID -o value "${DISK}3")
-sed -i "s|^export PARTUUID=.*|export PARTUUID=\"$partuuid\"|" ./env.sh
+sed -i "s|^export PARTUUID=.*|export PARTUUID=\"$partuuid\"|" "$ENV_FILE"
 
-cp env.sh /mnt/env.sh
-cp -r bootloader /mnt/bootloader
-cp -r arch-setup /mnt/arch-setup
+cp "$ENV_FILE" /mnt/env.sh
 
-arch-chroot /mnt /bin/bash /arch-setup/03-root.sh
+mkdir -p /mnt/templates/bootloader
+cp "$PROJECT_ROOT/templates/bootloader/"* /mnt/templates/bootloader/
+
+cp -r "$PROJECT_ROOT/chroot" /mnt/chroot
+
+arch-chroot /mnt /bin/bash /chroot/03_root.sh
