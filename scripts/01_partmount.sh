@@ -24,7 +24,7 @@ mkswap   "${DISK}2" && swapon "${DISK}2"
 
 if [[ -d /sys/firmware/efi ]]; then
   mkfs.fat -F32 "${DISK}1"
-  if [[ $loader == systemd-boot ]]; then
+  if [[ $LOADER == systemd-boot ]]; then
     mkdir -p /mnt/boot
     mount "${DISK}1" /mnt/boot
   else
