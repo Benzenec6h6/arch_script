@@ -23,10 +23,6 @@ sudo -u "$USERNAME" stow -t "/home/$USERNAME" shell
 
 sudo -u "$USERNAME" bash -c 'xmonad --recompile'
 
-##### 8. Nix multi-user ##################################################
-curl -L https://nixos.org/nix/install | bash -s -- --daemon
-systemctl enable --now nix-daemon.service
-
 sudo -u "$USERNAME" chsh -s /bin/zsh "$USERNAME"
 sudo passwd -l root
 
