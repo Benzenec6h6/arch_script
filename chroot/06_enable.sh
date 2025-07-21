@@ -2,9 +2,7 @@
 set -euo pipefail
 source ./env.sh
 
-loginctl enable-linger "$USERNAME"
-
-systemctl --machine="$USERNAME@" --user enable --now pipewire pipewire-pulse wireplumber
+systemctl --user enable --now pipewire pipewire-pulse wireplumber
 
 usermod -aG video,audio "$USERNAME"
 
