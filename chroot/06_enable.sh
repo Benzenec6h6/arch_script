@@ -27,6 +27,3 @@ fc-cache -fv
 
 # winetricks
 sudo -u "$USERNAME" winetricks -q cjkfonts || true
-
-# Nix
-systemctl enable --now nix-daemon.service

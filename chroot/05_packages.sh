@@ -71,5 +71,3 @@ pacman -S --needed --noconfirm "${pkgs[@]}"
 #sudo -u "$USERNAME" "$AUR_HELPER" -S --needed --noconfirm "${aur_pkgs[@]}"
 
 sudo -u "$USERNAME" winetricks -q cjkfonts || true
-
-curl -L https://nixos.org/nix/install | bash -s -- --daemon
