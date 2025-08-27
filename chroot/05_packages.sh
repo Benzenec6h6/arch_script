@@ -52,7 +52,7 @@ pkgs=(
   wine winetricks wine-mono
 
   # Virtualization
-  qemu-full qemu-img libvirt virt-install virt-manager virt-viewer \
+  qemu-full qemu-img libvirt virt-install virt-viewer \
   edk2-ovmf dnsmasq swtpm libosinfo tuned ntfs-3g
 
   # Containers
