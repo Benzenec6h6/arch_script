@@ -13,6 +13,7 @@ lspci | grep -qi nvidia  && gpu_pkgs+=(nvidia nvidia-utils)
 lspci | grep -qi " Intel " && gpu_pkgs+=(intel-media-driver)
 
 microcode_pkg=$(grep -qi AMD /proc/cpuinfo && echo amd-ucode || echo intel-ucode)
+#xmonad_pkgs=$(xmonad xmonad-contrib xmobar ghc picom trayer lxappearance dmenu rofi feh sxhkd mpv)
 
 if $is_vm; then
   virtual_pkgs=(xf86-video-qxl xf86-video-vesa xf86-video-fbdev)
@@ -30,9 +31,8 @@ pkgs=(
   wayland wayland-protocols xorg-xwayland libxkbcommon
   wlr-randr xdg-desktop-portal xdg-desktop-portal-wlr
 
-  # WM / launcher
-  xmonad xmonad-contrib xmobar ghc picom trayer lxappearance
-  dmenu rofi feh sxhkd mpv
+  # hyprland / launcher
+  hyprland 
 
   "${gpu_pkgs[@]}" "${virtual_pkgs[@]}" "$microcode_pkg"
   pipewire pipewire-alsa pipewire-pulse wireplumber

@@ -35,6 +35,35 @@ disk="/dev/$(awk '{print $1}' <<<"${disks[idx-1]}")"
 sed -i "s|^export DISK=.*|export DISK=\"$disk\"|" "$ENV_FILE"
 echo "→ selected $disk"
 
+# 関数を定義
+get_partition_name() {
+    local disk="$1"
+    local part_num="$2"
+    if [[ "$disk" =~ nvme ]]; then
+        echo "${disk}p${part_num}"
+    else
+        echo "${disk}${part_num}"
+    fi
+}
+
+# env.shを読み込む
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+ENV_FILE="$PROJECT_ROOT/env/env.sh"
+source "$ENV_FILE"
+
+# DISK選択後にパーティション変数も設定
+export DISK_BOOT=$(get_partition_name "$DISK" 1)
+export DISK_SWAP=$(get_partition_name "$DISK" 2)
+export DISK_ROOT=$(get_partition_name "$DISK" 3)
+
+# env.shに書き戻す
+sed -i "s|^export DISK_BOOT=.*|export DISK_BOOT=\"$DISK_BOOT\"|" "$ENV_FILE"
+sed -i "s|^export DISK_SWAP=.*|export DISK_SWAP=\"$DISK_SWAP\"|" "$ENV_FILE"
+sed -i "s|^export DISK_ROOT=.*|export DISK_ROOT=\"$DISK_ROOT\"|" "$ENV_FILE"
+
+echo "→ Partitions set: boot=$DISK_BOOT swap=$DISK_SWAP root=$DISK_ROOT"
+
 # ネットワークマネージャ選択
 nets=(dhcpcd NetworkManager)
 echo "== Network tool =="

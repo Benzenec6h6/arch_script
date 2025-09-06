@@ -9,7 +9,7 @@ source "$ENV_FILE"
 pacstrap /mnt base linux linux-firmware git base-devel
 genfstab -U /mnt >> /mnt/etc/fstab
 
-partuuid=$(blkid -s PARTUUID -o value "${DISK}3")
+partuuid=$(blkid -s PARTUUID -o value "${DISK_ROOT}")
 sed -i "s|^export PARTUUID=.*|export PARTUUID=\"$partuuid\"|" "$ENV_FILE"
 
 cp "$ENV_FILE" /mnt/env.sh

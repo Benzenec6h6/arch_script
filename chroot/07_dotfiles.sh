@@ -28,6 +28,6 @@ chsh -s /bin/zsh "$USERNAME"
 passwd -l root
 
 # 7) 最終後処理（swap / umount / reboot）
-swapoff "${DISK}2" || true
+swapoff "${DISK_SWAP}" || true
 umount -R /mnt || true
-#reboot
+poweroff

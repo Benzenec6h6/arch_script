@@ -17,18 +17,18 @@ fi
 sgdisk -n2:0:+4G   -t2:8200 -c2:"swap" "$DISK"
 sgdisk -n3:0:0     -t3:8300 -c3:"root" "$DISK"
 
-mkfs.ext4 -L root "${DISK}3"
-mount "${DISK}3" /mnt
+mkfs.ext4 -L root "${DISK_ROOT}"
+mount "${DISK_ROOT}" /mnt
 
-mkswap   "${DISK}2" && swapon "${DISK}2"
+mkswap   "${DISK_SWAP}" && swapon "${DISK_SWAP}"
 
 if [[ -d /sys/firmware/efi ]]; then
-  mkfs.fat -F32 "${DISK}1"
+  mkfs.fat -F32 "${DISK_BOOT}"
   if [[ $LOADER == systemd-boot ]]; then
     mkdir -p /mnt/boot
-    mount "${DISK}1" /mnt/boot
+    mount "${DISK_BOOT}" /mnt/boot
   else
     mkdir -p /mnt/boot/efi
-    mount "${DISK}1" /mnt/boot/efi
+    mount "${DISK_BOOT}" /mnt/boot/efi
   fi
 fi
