@@ -85,6 +85,42 @@ select aur in "${aurs[@]}"; do [[ -n $aur ]] && break; done
 sed -i "s|^export AUR_HELPER=.*|export AUR_HELPER=\"$aur\"|" "$ENV_FILE"
 echo "→ AUR helper: $aur"
 
+wms=(hyprland xmonad)
+echo "== Choose Window manager =="
+select wm in "${wms[@]}"; do [[ -n $wm ]] && break; done
+sed -i "s|^export WM=.*|export WM=\"$wm\"|" "$ENV_FILE"
+
+# dotfiles 選択
+declare -A dotfiles_urls
+dotfiles_urls[xmonad]="https://github.com/Axarva/dotfiles-2.0.git"
+
+# hyprland は複数候補
+dotfiles_urls[hyprland_1]="https://raw.githubusercontent.com/mylinuxforwork/dotfiles/main/hyprland-dotfiles-stable.dotinst"
+dotfiles_urls[hyprland_2]="https://github.com/JaKooLit/Arch-Hyprland.git"
+dotfiles_urls[hyprland_3]="https://github.com/end-4/dots-hyprland.git"
+dotfiles_urls[hyprland_4]="https://github.com/HyDE-Project/HyDE.git"
+dotfiles_urls[hyprland_5]="https://github.com/Matt-FTW/dotfiles.git"
+
+if [[ $wm == "hyprland" ]]; then
+    echo "== Select Hyprland dotfiles =="
+    hypr_keys=()
+    i=1
+    for key in "${!dotfiles_urls[@]}"; do
+        [[ $key == hyprland_* ]] || continue
+        echo "$i) ${dotfiles_urls[$key]}"
+        hypr_keys+=("$key")
+        ((i++))
+    done
+    read -rp "Index: " idx
+    DOTFILES_URL="${dotfiles_urls[${hypr_keys[idx-1]}]}"
+else
+    DOTFILES_URL="${dotfiles_urls[xmonad]}"
+fi
+
+sed -i "s|^export DOTFILES_URL=.*|export DOTFILES_URL=\"$DOTFILES_URL\"|" "$ENV_FILE"
+echo "→ Selected dotfiles: $DOTFILES_URL"
+
+
 #add username
 read -rp "== User name (new account): " username
 [[ -n $username ]] || { echo "Username must not be empty"; exit 1; }
