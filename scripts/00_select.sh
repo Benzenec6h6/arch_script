@@ -4,7 +4,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 ENV_FILE="$PROJECT_ROOT/env/env.sh"
+DOTFILES_JSON="$PROJECT_ROOT/lib/dotfiles.json"
 source "$ENV_FILE"
+command -v jq >/dev/null || { echo "jq is required. pacman -Sy jq"; exit 1; }
 
 # ---- 関数 ----
 
@@ -91,31 +93,12 @@ update_env "WM" "$WM"
 echo "→ $WM"
 
 # ---- dotfiles 選択 ----
-# XMonad は 1 URL
-declare -A dotfiles_urls
-dotfiles_urls[xmonad]="https://github.com/Axarva/dotfiles-2.0.git"
+mapfile -t names < <(jq -r --arg wm "$WM" '.[$wm][] | .name' "$DOTFILES_JSON")
 
-# Hyprland は複数候補（順序保証のため配列も使用）
-hyprland_urls=(
-  "https://raw.githubusercontent.com/mylinuxforwork/dotfiles/main/hyprland-dotfiles-stable.dotinst"
-  "https://github.com/JaKooLit/Arch-Hyprland.git"
-  "https://github.com/end-4/dots-hyprland.git"
-  "https://github.com/HyDE-Project/HyDE.git"
-  "https://github.com/Matt-FTW/dotfiles.git"
-)
-
-if [[ $WM == "hyprland" ]]; then
-    echo "== Select Hyprland dotfiles =="
-    for i in "${!hyprland_urls[@]}"; do
-        echo "$((i+1))) ${hyprland_urls[$i]}"
-    done
-    read -rp "Index: " idx
-    DOTFILES_URL="${hyprland_urls[idx-1]}"
-else
-    DOTFILES_URL="${dotfiles_urls[xmonad]}"
-fi
-update_env "DOTFILES_URL" "$DOTFILES_URL"
-echo "→ Selected dotfiles: $DOTFILES_URL"
+echo "== Choose dotfiles for $WM =="
+select name in "${names[@]}"; do [[ -n $name ]] && break; done
+update_env "DOTFILES" "$name"
+echo "→ $name"
 
 # ---- ユーザー名入力 ----
 read -rp "== User name (new account): " username
