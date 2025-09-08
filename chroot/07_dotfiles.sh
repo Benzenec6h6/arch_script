@@ -1,33 +1,45 @@
 #!/usr/bin/env bash
 set -euo pipefail
-source ./env.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")/.."
+ENV_FILE="$PROJECT_ROOT/env/env.sh"
+DOTFILES_JSON="$PROJECT_ROOT/lib/dotfiles.json"
 
-DOT_DIR="/home/$USERNAME/dotfiles/arch_dot"
-HOME_DIR="/home/$USERNAME"
+source "$ENV_FILE"
+command -v jq >/dev/null || { echo "jq is required. pacman -S jq"; exit 1; }
 
-# 1) dotfiles を正しい場所へクローン
-sudo -u "$USERNAME" git clone https://github.com/Benzenec6h6/dotfiles.git "$HOME_DIR/dotfiles"
+if [[ -z "${DOTFILES:-}" ]]; then
+    echo "DOTFILES not set. Run 00_select.sh first."
+    exit 1
+fi
 
-# 2) 必要ディレクトリの作成（ユーザー権限）
-sudo -u "$USERNAME" mkdir -p "$HOME_DIR/.config/environment.d"
-sudo -u "$USERNAME" mkdir -p "$HOME_DIR/.xmonad"
+echo "== Installing dotfiles: $DOTFILES for $WM =="
 
-# 3) dotfiles 配下に移動
-cd "$DOT_DIR"
+# method 配列を読み込む
+mapfile -t methods < <(
+    jq -r --arg wm "$WM" --arg name "$DOTFILES" \
+        '.[$wm][] | select(.name==$name) | .method[]' "$DOTFILES_JSON"
+)
 
-# 4) stow で各設定をリンク
-for dir in X11 fcitx5 xmonad shell; do
-  sudo -u "$USERNAME" stow -t "$HOME_DIR" "$dir"
+for cmd in "${methods[@]}"; do
+    echo "[RUN] $cmd"
+    # subshell で実行することでカレントディレクトリを汚さない
+    (
+        # 必要に応じて指定ユーザーで実行
+        if [[ $cmd == sudo* ]]; then
+            eval "$cmd"
+        else
+            sudo -u "$USERNAME" bash -c "$cmd"
+        fi
+    )
 done
 
-# 5) xmonad 再コンパイル（ユーザーで実行）
-sudo -u "$USERNAME" bash -c 'xmonad --recompile'
+echo "✅ Dotfiles ($DOTFILES) installed"
 
-# 6) シェル変更 & root ロック
-chsh -s /bin/zsh "$USERNAME"
+# root パスワードロック
 passwd -l root
 
-# 7) 最終後処理（swap / umount / reboot）
+# swap/off / umount / poweroff
 swapoff "${DISK_SWAP}" || true
 umount -R /mnt || true
 poweroff
