@@ -6,7 +6,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 ENV_FILE="$PROJECT_ROOT/env/env.sh"
 DOTFILES_JSON="$PROJECT_ROOT/lib/dotfiles.json"
 source "$ENV_FILE"
-command -v jq >/dev/null || { echo "jq is required. pacman -Sy jq"; exit 1; }
+command -v jq >/dev/null || { echo "jq is required. pacman -S jq"; exit 1; }
 
 # ---- 関数 ----
 
@@ -46,32 +46,6 @@ else
     update_env "is_vm" "false"
 fi
 
-# ---- ディスク選択 ----
-mapfile -t disks < <(lsblk -ndo NAME,SIZE,TYPE | awk '$3=="disk" && $1!~/^loop/ {print $1, $2}')
-(( ${#disks[@]} )) || { echo "No block device found"; exit 1; }
-
-echo "== Select target disk =="
-for i in "${!disks[@]}"; do
-    printf "%2d) /dev/%s (%s)\n" $((i+1)) \
-        "$(awk '{print $1}' <<<"${disks[$i]}")" \
-        "$(awk '{print $2}' <<<"${disks[$i]}")"
-done
-
-read -rp "Index: " idx
-(( idx >= 1 && idx <= ${#disks[@]} )) || { echo "Invalid index"; exit 1; }
-DISK="/dev/$(awk '{print $1}' <<<"${disks[idx-1]}")"
-update_env "DISK" "$DISK"
-echo "→ Selected disk: $DISK"
-
-# ---- パーティション設定 ----
-DISK_BOOT=$(get_partition_name "$DISK" 1)
-DISK_SWAP=$(get_partition_name "$DISK" 2)
-DISK_ROOT=$(get_partition_name "$DISK" 3)
-update_env "DISK_BOOT" "$DISK_BOOT"
-update_env "DISK_SWAP" "$DISK_SWAP"
-update_env "DISK_ROOT" "$DISK_ROOT"
-echo "→ Partitions: boot=$DISK_BOOT swap=$DISK_SWAP root=$DISK_ROOT"
-
 # ---- ネットワークマネージャ選択 ----
 NET_TOOL=$(choose_option "== Select network tool ==" dhcpcd NetworkManager)
 update_env "NET_TOOL" "$NET_TOOL"
@@ -105,3 +79,29 @@ read -rp "== User name (new account): " username
 [[ -n $username ]] || { echo "Username must not be empty"; exit 1; }
 update_env "USERNAME" "$username"
 echo "→ User: $username"
+
+# ---- ディスク選択 ----
+mapfile -t disks < <(lsblk -ndo NAME,SIZE,TYPE | awk '$3=="disk" && $1!~/^loop/ {print $1, $2}')
+(( ${#disks[@]} )) || { echo "No block device found"; exit 1; }
+
+echo "== Select target disk =="
+for i in "${!disks[@]}"; do
+    printf "%2d) /dev/%s (%s)\n" $((i+1)) \
+        "$(awk '{print $1}' <<<"${disks[$i]}")" \
+        "$(awk '{print $2}' <<<"${disks[$i]}")"
+done
+
+read -rp "Index: " idx
+(( idx >= 1 && idx <= ${#disks[@]} )) || { echo "Invalid index"; exit 1; }
+DISK="/dev/$(awk '{print $1}' <<<"${disks[idx-1]}")"
+update_env "DISK" "$DISK"
+echo "→ Selected disk: $DISK"
+
+# ---- パーティション設定 ----
+DISK_BOOT=$(get_partition_name "$DISK" 1)
+DISK_SWAP=$(get_partition_name "$DISK" 2)
+DISK_ROOT=$(get_partition_name "$DISK" 3)
+update_env "DISK_BOOT" "$DISK_BOOT"
+update_env "DISK_SWAP" "$DISK_SWAP"
+update_env "DISK_ROOT" "$DISK_ROOT"
+echo "→ Partitions: boot=$DISK_BOOT swap=$DISK_SWAP root=$DISK_ROOT"
