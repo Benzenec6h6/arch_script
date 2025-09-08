@@ -22,9 +22,14 @@ update_env() {
 choose_option() {
     local prompt="$1"; shift
     local options=("$@")
+
     echo "$prompt"
-    select opt in "${options[@]}"; do [[ -n $opt ]] && break; done
-    echo "$opt"
+    select opt in "${options[@]}"; do
+        if [[ -n $opt ]]; then
+            echo "$opt"
+            break
+        fi
+    done
 }
 
 # パーティション名取得
