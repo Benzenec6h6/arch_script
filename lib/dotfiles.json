@@ -1,0 +1,68 @@
+{
+  "hyprland": [
+    {
+      "name": "mylinuxforwork",
+      "url": "https://github.com/mylinuxforwork/dotfiles",
+      "method": [
+        "mkdir -p ~/Projects",
+        "git clone --depth 1 https://github.com/mylinuxforwork/dotfiles ~/Projects/dotfiles",
+        "cd ~/Projects/dotfiles/setup",
+        "./setup.sh",
+        "cd ~/Projects/dotfiles",
+        "stow dotfiles"
+      ]
+    },
+    {
+      "name": "JaKooLit",
+      "url": "https://github.com/JaKooLit/Arch-Hyprland.git",
+      "method": [
+        "git clone --depth=1 https://github.com/JaKooLit/Arch-Hyprland.git ~/Arch-Hyprland",
+        "cd ~/Arch-Hyprland",
+        "chmod +x install.sh",
+        "./install.sh"
+      ]
+    },
+    {
+      "name": "end-4",
+      "url": "https://github.com/end-4/dots-hyprland.git",
+      "method": [
+        "git clone --depth=1 https://github.com/end-4/dots-hyprland.git",
+        "cd dots-hyprland",
+        "chmod +x install.sh",
+        "./install.sh"
+      ]
+    },
+    {
+      "name": "HyDE-Project",
+      "url": "https://github.com/HyDE-Project/HyDE.git",
+      "method": [
+        "git clone --depth=1 https://github.com/HyDE-Project/HyDE ~/HyDE",
+        "cd ~/HyDE/Scripts",
+        "./install.sh"
+      ]
+    },
+    {
+      "name": "Matt-FTW",
+      "url": "https://github.com/Matt-FTW/dotfiles.git",
+      "method": [
+        "git clone https://github.com/Matt-FTW/dotfiles.git",
+        "cd dotfiles",
+        "cp -r .config/* ~/.config/",
+        "cp -r .local/bin/* ~/.local/bin/"
+      ]
+    }
+  ],
+  "xmonad": [
+    {
+      "name": "Axarva",
+      "url": "https://github.com/Axarva/dotfiles-2.0.git",
+      "method": [
+        "git clone https://github.com/Axarva/dotfiles-2.0.git",
+        "cd dotfiles-2.0",
+        "chmod +x install-on-arch.sh",
+        "./install-on-arch.sh",
+        "sudo ln -s /usr/lib/libasan.so.8 /usr/lib/libasan.so.6"
+      ]
+    }
+  ]
+}
