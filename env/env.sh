@@ -12,4 +12,4 @@ export AUR_HELPER=""        # yay or paru
 export PARTUUID=""
 export is_vm=""
 export WM=""
-export DOTFILES_URL=""
+export DOTFILES=""
