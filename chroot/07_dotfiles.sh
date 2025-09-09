@@ -31,7 +31,7 @@ for cmd in "${methods[@]}"; do
         if [[ $cmd == sudo* ]]; then
             eval "$cmd"
         else
-            sudo -u "$USERNAME" env HOME="/home/$USERNAME" bash -c "$cmd"
+            sudo -u "$USERNAME" bash -c "$(eval echo "$cmd")"
         fi
     )
 done
