@@ -61,7 +61,7 @@
         "cd $HOME/dotfiles-2.0",
         "chmod +x install-on-arch.sh",
         "./install-on-arch.sh",
-        "ln -s /usr/lib/libasan.so.8 /usr/lib/libasan.so.6"
+        "sudo ln -s /usr/lib/libasan.so.8 /usr/lib/libasan.so.6"
       ]
     }
   ]
