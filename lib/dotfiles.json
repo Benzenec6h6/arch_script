@@ -27,7 +27,7 @@
       "url": "https://github.com/end-4/dots-hyprland.git",
       "method": [
         "git clone --depth=1 https://github.com/end-4/dots-hyprland.git",
-        "cd dots-hyprland",
+        "cd ~/dots-hyprland",
         "chmod +x install.sh",
         "./install.sh"
       ]
@@ -46,7 +46,7 @@
       "url": "https://github.com/Matt-FTW/dotfiles.git",
       "method": [
         "git clone https://github.com/Matt-FTW/dotfiles.git",
-        "cd dotfiles",
+        "cd ~/dotfiles",
         "cp -r .config/* ~/.config/",
         "cp -r .local/bin/* ~/.local/bin/"
       ]
@@ -57,8 +57,8 @@
       "name": "Axarva",
       "url": "https://github.com/Axarva/dotfiles-2.0.git",
       "method": [
-        "git clone https://github.com/Axarva/dotfiles-2.0.git",
-        "cd dotfiles-2.0",
+        "git clone https://github.com/Axarva/dotfiles-2.0.git ~/dotfiles-2.0",
+        "cd ~/dotfiles-2.0",
         "chmod +x install-on-arch.sh",
         "./install-on-arch.sh",
         "sudo ln -s /usr/lib/libasan.so.8 /usr/lib/libasan.so.6"
