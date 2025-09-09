@@ -68,7 +68,7 @@ base_pkgs=(
   docker
 
   # dotfiles
-  stow
+  stow jq
 
   # Apps
   firefox chromium code discord qbittorrent unzip unrar p7zip
