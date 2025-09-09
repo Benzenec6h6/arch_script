@@ -2,6 +2,7 @@
 
 export ARCH_TIMEZONE="Asia/Tokyo"
 export USERNAME=""          # install時に読み取り
+export PASSWORD=""
 export DISK=""              # install時に選択
 export DISK_BOOT=""   # /boot用パーティション1
 export DISK_SWAP=""   # swap用パーティション2
