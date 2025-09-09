@@ -2,8 +2,8 @@
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(realpath "$SCRIPT_DIR/..")"
-ENV_FILE="$PROJECT_ROOT/env/env.sh"
-DOTFILES_JSON="$PROJECT_ROOT/lib/dotfiles.json"
+ENV_FILE="$PROJECT_ROOT/env.sh"
+DOTFILES_JSON="$PROJECT_ROOT/dotfiles.json"
 
 source "$ENV_FILE"
 command -v jq >/dev/null || { echo "jq is required. pacman -S jq"; exit 1; }
