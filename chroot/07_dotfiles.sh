@@ -25,15 +25,8 @@ mapfile -t methods < <(
 
 for cmd in "${methods[@]}"; do
     echo "[RUN] $cmd"
-    # subshell で実行することでカレントディレクトリを汚さない
-    (
-        # 必要に応じて指定ユーザーで実行
-        if [[ $cmd == sudo* ]]; then
-            eval "$cmd"
-        else
-            sudo -u "$USERNAME" bash -c "$(eval echo "$cmd")"
-        fi
-    )
+    # sudo で対象ユーザーとして直接実行
+    sudo -u "$USERNAME" env HOME="$HOME" bash -c "$cmd"
 done
 
 echo "✅ Dotfiles ($DOTFILES) installed"
