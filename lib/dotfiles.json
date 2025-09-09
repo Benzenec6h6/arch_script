@@ -4,11 +4,11 @@
       "name": "mylinuxforwork",
       "url": "https://github.com/mylinuxforwork/dotfiles",
       "method": [
-        "mkdir -p ~/Projects",
-        "git clone --depth 1 https://github.com/mylinuxforwork/dotfiles ~/Projects/dotfiles",
-        "cd ~/Projects/dotfiles/setup",
+        "mkdir -p $HOME/Projects",
+        "git clone --depth 1 https://github.com/mylinuxforwork/dotfiles $HOME/Projects/dotfiles",
+        "cd $HOME/Projects/dotfiles/setup",
         "./setup.sh",
-        "cd ~/Projects/dotfiles",
+        "cd $HOME/Projects/dotfiles",
         "stow dotfiles"
       ]
     },
@@ -16,8 +16,8 @@
       "name": "JaKooLit",
       "url": "https://github.com/JaKooLit/Arch-Hyprland.git",
       "method": [
-        "git clone --depth=1 https://github.com/JaKooLit/Arch-Hyprland.git ~/Arch-Hyprland",
-        "cd ~/Arch-Hyprland",
+        "git clone --depth=1 https://github.com/JaKooLit/Arch-Hyprland.git $HOME/Arch-Hyprland",
+        "cd $HOME/Arch-Hyprland",
         "chmod +x install.sh",
         "./install.sh"
       ]
@@ -27,7 +27,7 @@
       "url": "https://github.com/end-4/dots-hyprland.git",
       "method": [
         "git clone --depth=1 https://github.com/end-4/dots-hyprland.git",
-        "cd ~/dots-hyprland",
+        "cd $HOME/dots-hyprland",
         "chmod +x install.sh",
         "./install.sh"
       ]
@@ -36,8 +36,8 @@
       "name": "HyDE-Project",
       "url": "https://github.com/HyDE-Project/HyDE.git",
       "method": [
-        "git clone --depth=1 https://github.com/HyDE-Project/HyDE ~/HyDE",
-        "cd ~/HyDE/Scripts",
+        "git clone --depth=1 https://github.com/HyDE-Project/HyDE $HOME/HyDE",
+        "cd $HOME/HyDE/Scripts",
         "./install.sh"
       ]
     },
@@ -46,9 +46,9 @@
       "url": "https://github.com/Matt-FTW/dotfiles.git",
       "method": [
         "git clone https://github.com/Matt-FTW/dotfiles.git",
-        "cd ~/dotfiles",
-        "cp -r .config/* ~/.config/",
-        "cp -r .local/bin/* ~/.local/bin/"
+        "cd $HOME/dotfiles",
+        "cp -r .config/* $HOME/.config/",
+        "cp -r .local/bin/* $HOME/.local/bin/"
       ]
     }
   ],
@@ -57,8 +57,8 @@
       "name": "Axarva",
       "url": "https://github.com/Axarva/dotfiles-2.0.git",
       "method": [
-        "git clone https://github.com/Axarva/dotfiles-2.0.git ~/dotfiles-2.0",
-        "cd ~/dotfiles-2.0",
+        "git clone https://github.com/Axarva/dotfiles-2.0.git $HOME/dotfiles-2.0",
+        "cd $HOME/dotfiles-2.0",
         "chmod +x install-on-arch.sh",
         "./install-on-arch.sh",
         "sudo ln -s /usr/lib/libasan.so.8 /usr/lib/libasan.so.6"
