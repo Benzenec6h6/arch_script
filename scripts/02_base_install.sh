@@ -6,7 +6,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 ENV_FILE="$PROJECT_ROOT/env/env.sh"
 source "$ENV_FILE"
 
-pacstrap /mnt base linux linux-firmware git base-devel
+pacstrap /mnt base linux linux-firmware base-devel git
 genfstab -U /mnt >> /mnt/etc/fstab
 
 partuuid=$(blkid -s PARTUUID -o value "${DISK_ROOT}")
