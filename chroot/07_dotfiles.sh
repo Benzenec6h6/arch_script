@@ -14,9 +14,8 @@ if [[ -z "${DOTFILES:-}" ]]; then
 fi
 
 echo "== Installing dotfiles: $DOTFILES for $WM =="
-DOTFILES_DIR="/mnt/home/$USERNAME/$DOTFILES"
-mkdir -p "$DOTFILES_DIR"
-chown -R "$USERNAME:$USERNAME" "$DOTFILES_DIR"
+export HOME="/home/$USERNAME"
+chown -R "$USERNAME:$USERNAME" "$HOME"
 
 # method 配列を読み込む
 mapfile -t methods < <(
@@ -32,7 +31,7 @@ for cmd in "${methods[@]}"; do
         if [[ $cmd == sudo* ]]; then
             eval "$cmd"
         else
-            sudo -u "$USERNAME" bash -c "$cmd"
+            sudo -u "$USERNAME" env HOME="/home/$USERNAME" bash -c "$cmd"
         fi
     )
 done
