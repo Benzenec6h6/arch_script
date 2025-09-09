@@ -8,8 +8,8 @@ echo "KEYMAP=jp106"     > /etc/vconsole.conf
 locale-gen
 
 useradd -m -G wheel -s /bin/bash "$USERNAME"
-echo "root:root" | chpasswd
-echo "$USERNAME:$USERNAME" | chpasswd
+echo "root:${PASSWORD}" | chpasswd
+echo "${USERNAME}:${PASSWORD}" | chpasswd
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
