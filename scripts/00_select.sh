@@ -12,24 +12,32 @@ command -v jq >/dev/null || { echo "jq is required. pacman -S jq"; exit 1; }
 
 # env.sh に書き込む関数
 update_env() {
-    local var="$1"
-    local val="$2"
-    sed -i "/^export $var=/d" "$ENV_FILE"
-    echo "export $var=\"$val\"" >> "$ENV_FILE"
+  local var="$1"
+  local val="$2"
+  sed -i "/^export ${var}=/d" "$ENV_FILE"
+  if [[ -s "$ENV_FILE" && "$(tail -c 1 "$ENV_FILE")" != $'\n' ]]; then
+    printf '\n' >> "$ENV_FILE"
+  fi
+  printf 'export %s="%s"\n' "$var" "$val" >> "$ENV_FILE"
 }
 
 # select / read を共通化
 choose_option() {
-    local prompt="$1"; shift
-    local options=("$@")
-
-    echo "$prompt"
+  local prompt="$1"; shift
+  local options=("$@")
+  local opt
+  printf '%s\n' "$prompt" >&2
+  exec 3>&1
+  {
+    PS3="> "
     select opt in "${options[@]}"; do
-        if [[ -n $opt ]]; then
-            echo "$opt"
-            break
-        fi
+      if [[ -n $opt ]]; then
+        printf '%s\n' "$opt" >&3
+        break
+      fi
     done
+  } 1>&2
+  exec 3>&-
 }
 
 # パーティション名取得
