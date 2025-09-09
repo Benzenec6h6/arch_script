@@ -14,6 +14,8 @@ if [[ -z "${DOTFILES:-}" ]]; then
 fi
 
 echo "== Installing dotfiles: $DOTFILES for $WM =="
+DOTFILES_DIR="/mnt/home/$USERNAME/$DOTFILES"
+mkdir -p "$DOTFILES_DIR"
 
 # method 配列を読み込む
 mapfile -t methods < <(
