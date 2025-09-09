@@ -31,7 +31,7 @@ else
 fi
 
 if $is_vm; then
-  virtual_pkgs=(xf86-video-qxl xf86-video-vesa xf86-video-fbdev)
+  virtual_pkgs=(xf86-video-qxl xf86-video-vesa xf86-video-fbdev spice-vdagent)
   power_pkgs=()
   service_pkgs=()
 else

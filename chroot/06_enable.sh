@@ -5,7 +5,7 @@ source ./env.sh
 usermod -aG video,audio "$USERNAME"
 
 if ! $is_vm; then
-  systemctl enable bluetooth cups tlp
+  systemctl enable bluetooth cups tlp spice-vdagentd
   usermod -aG input "$USERNAME"
 fi
 
