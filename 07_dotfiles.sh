@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$SCRIPT_DIR/env/env.sh"
-DOTFILES_JSON="$$SCRIPT_DIR/lib/dotfiles.json"
+PROJECT_ROOT="$(realpath "$SCRIPT_DIR")"
+ENV_FILE="$PROJECT_ROOT/env/env.sh"
+DOTFILES_JSON="$PROJECT_ROOT/lib/dotfiles.json"
 
 source "$ENV_FILE"
 command -v jq >/dev/null || { echo "jq is required. pacman -S jq"; exit 1; }
@@ -13,7 +14,6 @@ if [[ -z "${DOTFILES:-}" ]]; then
 fi
 
 echo "== Installing dotfiles: $DOTFILES for $WM =="
-HOME="/mnt/home/$USERNAME"
 
 # method 配列を読み込む
 mapfile -t methods < <(
@@ -23,15 +23,15 @@ mapfile -t methods < <(
 
 for cmd in "${methods[@]}"; do
     echo "[RUN] $cmd"
-    bash -c "HOME=\"$HOME\" $cmd"
+     HOME="/mnt/home/$USERNAME" bash -c "$cmd"
 done
 
-chown -R "$USERNAME:$USERNAME" "$HOME"
+arch-chroot /mnt chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
 
 echo "✅ Dotfiles ($DOTFILES) installed"
 
 # root パスワードロック
-passwd -l root
+arch-chroot /mnt passwd -l root
 
 # swap/off / umount / poweroff
 swapoff "${DISK_SWAP}" || true
