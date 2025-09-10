@@ -15,16 +15,20 @@ fi
 
 echo "== Installing dotfiles: $DOTFILES for $WM =="
 
-# method 配列を読み込む
-mapfile -t methods < <(
-    jq -r --arg wm "$WM" --arg name "$DOTFILES" \
-        '.[$wm][] | select(.name==$name) | .method[]' "$DOTFILES_JSON"
-)
+HOME="/mnt/home/$USERNAME"
 
-for cmd in "${methods[@]}"; do
-    echo "[RUN] $cmd"
-     HOME="/mnt/home/$USERNAME" bash -c "$cmd"
-done
+# method 配列をまとめて読み込む
+methods=$(jq -r --arg wm "$WM" --arg name "$DOTFILES" \
+    '.[$wm][] | select(.name==$name) | .method[]' "$DOTFILES_JSON")
+
+(
+    export HOME="$HOME"
+    cd "$HOME"
+    while IFS= read -r cmd; do
+        echo "[RUN] $cmd"
+        eval "$cmd"
+    done <<< "$methods"
+)
 
 arch-chroot /mnt chown -R "$USERNAME:$USERNAME" "/home/$USERNAME"
 
