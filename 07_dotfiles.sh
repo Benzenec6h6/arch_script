@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(realpath "$SCRIPT_DIR")"
-ENV_FILE="$PROJECT_ROOT/env/env.sh"
-DOTFILES_JSON="$PROJECT_ROOT/lib/dotfiles.json"
+ENV_FILE="$SCRIPT_DIR/env/env.sh"
+DOTFILES_JSON="$$SCRIPT_DIR/lib/dotfiles.json"
 
 source "$ENV_FILE"
 command -v jq >/dev/null || { echo "jq is required. pacman -S jq"; exit 1; }
@@ -14,7 +13,7 @@ if [[ -z "${DOTFILES:-}" ]]; then
 fi
 
 echo "== Installing dotfiles: $DOTFILES for $WM =="
-export HOME="/mnt/home/$USERNAME"
+HOME="/mnt/home/$USERNAME"
 
 # method 配列を読み込む
 mapfile -t methods < <(
@@ -24,7 +23,7 @@ mapfile -t methods < <(
 
 for cmd in "${methods[@]}"; do
     echo "[RUN] $cmd"
-    bash -c "$cmd"
+    bash -c "HOME=\"$HOME\" $cmd"
 done
 
 chown -R "$USERNAME:$USERNAME" "$HOME"
