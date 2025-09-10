@@ -17,7 +17,7 @@ microcode_pkg=$(grep -qi AMD /proc/cpuinfo && echo amd-ucode || echo intel-ucode
 # WM ごとのパッケージ
 if [[ "$WM" == "hyprland" ]]; then
   wm_pkgs=(
-    hyprland xdg-desktop-portal-hyprland wlroots polkit-gnome
+    hyprland xdg-desktop-portal-hyprland polkit-gnome
     wl-clipboard cliphist seatd
   )
 elif [[ "$WM" == "xmonad" ]]; then
