@@ -1,10 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(realpath "$SCRIPT_DIR")"
-ENV_FILE="$PROJECT_ROOT/env/env.sh"
-
+ENV_FILE="/env.sh"
 source "$ENV_FILE"
 
 if [[ -z "${DOTFILES:-}" || -z "${WM:-}" ]]; then
