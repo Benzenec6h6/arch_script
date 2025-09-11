@@ -13,6 +13,6 @@ echo "${USERNAME}:${PASSWORD}" | chpasswd
 
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
-for script in /chroot/{04..06}_*.sh; do
+for script in /chroot/{04..07}_*.sh; do
   bash "$script"
 done
