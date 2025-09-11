@@ -13,7 +13,6 @@ partuuid=$(blkid -s PARTUUID -o value "${DISK_ROOT}")
 sed -i "s|^export PARTUUID=.*|export PARTUUID=\"$partuuid\"|" "$ENV_FILE"
 
 cp "$ENV_FILE" /mnt/env.sh
-cp "$PROJECT_ROOT/lib/dotfiles.json" /mnt/dotfiles.json
 
 mkdir -p /mnt/templates/bootloader
 cp "$PROJECT_ROOT/templates/bootloader/"* /mnt/templates/bootloader/
